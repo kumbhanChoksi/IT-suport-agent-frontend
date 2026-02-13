@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Vapi from '@vapi-ai/web';
 
 interface VapiErrorDetails {
@@ -26,6 +26,11 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState<Array<{role: string, text: string}>>([]);
   const [lastError, setLastError] = useState<VapiErrorDetails | null>(null);
+  const transcriptEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [transcript]);
 
   useEffect(() => {
     const vapiInstance = new Vapi(apiKey);
@@ -262,27 +267,30 @@ const VapiWidget: React.FC<VapiWidgetProps> = ({
                 Conversation will appear here...
               </p>
             ) : (
-              transcript.map((msg, i) => (
-                <div
-                  key={i}
-                  style={{
-                    marginBottom: '8px',
-                    textAlign: msg.role === 'user' ? 'right' : 'left'
-                  }}
-                >
-                  <span style={{
-                    background: msg.role === 'user' ? '#12A594' : '#333',
-                    color: '#fff',
-                    padding: '8px 12px',
-                    borderRadius: '12px',
-                    display: 'inline-block',
-                    fontSize: '14px',
-                    maxWidth: '80%'
-                  }}>
-                    {msg.text}
-                  </span>
-                </div>
-              ))
+              <>
+                {transcript.map((msg, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      marginBottom: '8px',
+                      textAlign: msg.role === 'user' ? 'right' : 'left'
+                    }}
+                  >
+                    <span style={{
+                      background: msg.role === 'user' ? '#12A594' : '#333',
+                      color: '#fff',
+                      padding: '8px 12px',
+                      borderRadius: '12px',
+                      display: 'inline-block',
+                      fontSize: '14px',
+                      maxWidth: '80%'
+                    }}>
+                      {msg.text}
+                    </span>
+                  </div>
+                ))}
+                <div ref={transcriptEndRef} />
+              </>
             )}
           </div>
         </div>
